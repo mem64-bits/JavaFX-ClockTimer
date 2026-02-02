@@ -39,17 +39,18 @@ jobs:
           files: |
             # Mapping local paths to clear, public-facing names
             build/jar/ClockTimer.jar:ClockTimer-Universal-v${{ github.ref_name }}.jar
-            ClockTimer_Windows_v${{ github.ref_name }}.zip
-          name: Release ${{ github.ref_name }}
+            ClockTimer_Windows_${{ github.ref_name }}.zip
+          name: ${{ github.ref_name }}
           body: |
             ## Download Instructions
             
             ### Windows
-            Download **ClockTimer_Windows.zip**, extract it, and run the exe. (JRE is embedded into the app).
+            Download **ClockTimer_Windows.zip**, extract it, and run the executable. 
+            (JRE is embedded into the app).
             
-            ### Linux / MacOS / Windows
+            ###  Windows/ Linux / MacOS
             Download **ClockTimer-Universal.jar**. 
-            *Needs Java 25 Installed on system*
-            Run with: `java -jar ClockTimer-Universal.jar, or double click in explorer`
+            *Needs JDK 25 Installed on System*
+            Run with: `java -jar ClockTimer-Universal.jar, or double click in File Explorer`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
