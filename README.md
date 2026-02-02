@@ -4,6 +4,9 @@ A simple application using JavaFX and AlantaFX for styling,
 made to serve the purpose for serving as a simple Stopwatch
 with a button to switch functionality to a Timer.
 
+<img width="604" height="497" alt="image" src="https://github.com/user-attachments/assets/62f7fb33-d37a-4df8-a71c-0cd3acae2067" />
+
+
 ## Build Instructions
 
 The project can be easily built with
