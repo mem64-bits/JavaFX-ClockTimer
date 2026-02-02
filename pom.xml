@@ -3,7 +3,7 @@
 
     <groupId>com.git.mem64bits.clocktimer</groupId>
     <artifactId>ClockTimer</artifactId>
-    <version>1.0.0</version>
+    <version>0.5.0</version>
     <name>Clock Timer</name>
 
     <properties>
@@ -12,7 +12,6 @@
         <maven.compiler.target>25</maven.compiler.target>
         <javafx.version>21.0.6</javafx.version>
         <main.class>com.git.mem64bits.clocktimer.clocktimer.AppLauncher</main.class>
-        <!-- Centralizing paths for the "Structured Plan" -->
         <path.jar>${project.basedir}/build/jar</path.jar>
         <path.jpackage>${project.basedir}/build/jpackage</path.jpackage>
     </properties>
@@ -33,6 +32,27 @@
             <artifactId>atlantafx-base</artifactId>
             <version>2.0.1</version>
         </dependency>
+        <!-- Linux Native Libs -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>linux</classifier>
+        </dependency>
+        <!-- Mac Native Libs-->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>mac</classifier>
+        </dependency>
+        <!-- Windows Native Libs -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
     </dependencies>
 
     <build>
@@ -46,7 +66,6 @@
                 <version>3.13.0</version>
             </plugin>
 
-            <!-- Re-create empty folders after mvn clean -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -54,7 +73,6 @@
                 <executions>
                     <execution>
                         <id>create-build-folders</id>
-                        <!-- Bind to the 'post-clean' phase -->
                         <phase>initialize</phase>
                         <goals>
                             <goal>run</goal>
@@ -88,7 +106,6 @@
                                     <goal>shade</goal>
                                 </goals>
                                 <configuration>
-                                    <!-- Use the property to ensure it goes to build/jar -->
                                     <outputFile>${path.jar}/ClockTimer.jar</outputFile>
                                     <transformers>
                                         <transformer

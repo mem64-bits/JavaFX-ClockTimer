@@ -1,0 +1,53 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build Universal JAR
+        # This builds build/jar/ClockTimer.jar containing all 3 OS natives
+        run: .\mvnw.cmd clean package -P build-jar
+
+      - name: Build Windows EXE
+        # This builds the Windows-specific jpackage in build/jpackage/
+        run: .\mvnw.cmd install -P build-jar,build-jpackage
+
+      - name: Zip Windows EXE Folder
+        run: Compress-Archive -Path build/jpackage/ClockTimer -DestinationPath ClockTimer_Windows_v${{ github.ref_name }}.zip
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            # Mapping local paths to clear, public-facing names
+            build/jar/ClockTimer.jar:ClockTimer-Universal-v${{ github.ref_name }}.jar
+            ClockTimer_Windows_v${{ github.ref_name }}.zip
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Download Instructions
+            
+            ### Windows
+            Download **ClockTimer_Windows.zip**, extract it, and run the exe. (JRE is embedded into the app).
+            
+            ### Linux / MacOS / Windows
+            Download **ClockTimer-Universal.jar**. 
+            *Needs Java 25 Installed on system*
+            Run with: `java -jar ClockTimer-Universal.jar, or double click in explorer`
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
