@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -21,7 +23,7 @@ jobs:
           cache: 'maven'
 
       - name: Build Universal JAR
-        # This builds build/jar/ClockTimer.jar containing all 3 OS natives
+        # This builds, build/jar/ClockTimer.jar containing all 3 OS natives
         run: .\mvnw.cmd clean package -P build-jar
 
       - name: Build Windows EXE
