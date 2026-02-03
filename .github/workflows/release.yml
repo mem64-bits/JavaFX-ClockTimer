@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   build:
+    # Runs build on a Windows server
     runs-on: windows-latest
 
     steps:
@@ -45,18 +46,15 @@ jobs:
             ClockTimer_Windows_${{ github.ref_name }}.zip
           name: Release ${{ github.ref_name }}
           body: |
-            ## 🚀 Release Details
-            Version: ${{ github.ref_name }}
+            ## Download Instructions
             
-            ## 📥 Download Instructions
-            
-            ### 💻 Windows (Standalone)
+            ### Windows (jpackage)
             Download **ClockTimer_Windows_${{ github.ref_name }}.zip**, extract the folder, and run **ClockTimer.exe**. 
             *(Includes a bundled Java runtime)*.
             
             ### Windows / Linux / MacOS (Universal JAR)
             Download **ClockTimer_${{ github.ref_name }}.jar**. 
-            *Requires Java 25 installed on your system.*
+            *Requires OpenJDK 25 installed on your system.*
             Run with: `java -jar ClockTimer_${{ github.ref_name }}.jar`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
