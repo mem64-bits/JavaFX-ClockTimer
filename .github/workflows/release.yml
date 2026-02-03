@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+
 permissions:
   contents: write
 
@@ -22,35 +23,40 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Build Universal JAR
-        # This builds, build/jar/ClockTimer.jar containing all 3 OS natives
-        run: .\mvnw.cmd clean package -P build-jar
+      - name: Build with Maven
+        # This builds build/jar/ClockTimer.jar and build/jpackage/ClockTimer
+        run: .\mvnw.cmd clean install -P build-jar,build-jpackage
 
-      - name: Build Windows EXE
-        # This builds the Windows-specific jpackage in build/jpackage/
-        run: .\mvnw.cmd install -P build-jar,build-jpackage
-
-      - name: Zip Windows EXE Folder
-        run: Compress-Archive -Path build/jpackage/ClockTimer -DestinationPath ClockTimer_Windows_v${{ github.ref_name }}.zip
+      - name: Prepare Release Assets
+        # We rename the files on the disk here so they have the correct version numbers
+        run: |
+          # 1. Rename the JAR to include the version (e.g., ClockTimer_v1.0.0.jar)
+          Copy-Item "build/jar/ClockTimer.jar" "ClockTimer_${{ github.ref_name }}.jar"
+          
+          # 2. Zip the Windows JPackage folder so it is portable
+          Compress-Archive -Path "build/jpackage/ClockTimer" -DestinationPath "ClockTimer_Windows_${{ github.ref_name }}.zip"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          # Now we just point to the files we created in the project root
           files: |
-            # Mapping local paths to clear, public-facing names
-            build/jar/ClockTimer.jar:ClockTimer-Universal-v${{ github.ref_name }}.jar
+            ClockTimer_${{ github.ref_name }}.jar
             ClockTimer_Windows_${{ github.ref_name }}.zip
-          name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           body: |
-            ## Download Instructions
+            ## 🚀 Release Details
+            Version: ${{ github.ref_name }}
             
-            ### Windows
-            Download **ClockTimer_Windows.zip**, extract it, and run the executable. 
-            (JRE is embedded into the app).
+            ## 📥 Download Instructions
             
-            ###  Windows/ Linux / MacOS
-            Download **ClockTimer-Universal.jar**. 
-            *Needs JDK 25 Installed on System*
-            Run with: `java -jar ClockTimer-Universal.jar, or double click in File Explorer`
+            ### 💻 Windows (Standalone)
+            Download **ClockTimer_Windows_${{ github.ref_name }}.zip**, extract the folder, and run **ClockTimer.exe**. 
+            *(Includes a bundled Java runtime)*.
+            
+            ### Windows / Linux / MacOS (Universal JAR)
+            Download **ClockTimer_${{ github.ref_name }}.jar**. 
+            *Requires Java 25 installed on your system.*
+            Run with: `java -jar ClockTimer_${{ github.ref_name }}.jar`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
