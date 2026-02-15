@@ -1,9 +1,12 @@
-<project>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.git.mem64bits.clocktimer</groupId>
     <artifactId>ClockTimer</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.4</version>
     <name>Clock Timer</name>
 
     <properties>
@@ -12,12 +15,14 @@
         <maven.compiler.target>25</maven.compiler.target>
         <javafx.version>21.0.6</javafx.version>
         <main.class>com.git.mem64bits.clocktimer.clocktimer.AppLauncher</main.class>
-        <path.jar>${project.basedir}/build/jar</path.jar>
-        <path.jpackage>${project.basedir}/build/jpackage</path.jpackage>
+        <module.name>com.git.mem64bits.clocktimer.clocktimer</module.name>
+        <path.build>${project.basedir}/build</path.build>
+        <path.jar>${path.build}/jar</path.jar>
+        <path.jpackage>${path.build}/jpackage</path.jpackage>
+        <path.jre.output>${path.build}/custom-jre</path.jre.output>
     </properties>
 
     <dependencies>
-        <!-- Standard JavaFX (Will automatically pick Windows for your IDE) -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
@@ -33,8 +38,6 @@
             <artifactId>javafx-graphics</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-
-        <!-- UI Theme -->
         <dependency>
             <groupId>io.github.mkpaz</groupId>
             <artifactId>atlantafx-base</artifactId>
@@ -43,13 +46,66 @@
     </dependencies>
 
     <build>
-        <directory>${project.basedir}/build</directory>
+        <directory>${path.build}</directory>
         <finalName>ClockTimer</finalName>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
+            </plugin>
+
+            <!-- 1. ADDED: JavaFX Runner config for 'mvn javafx:run' -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <mainClass>${module.name}/${main.class}</mainClass>
+                    <options>
+                        <option>--enable-native-access=${module.name},javafx.graphics</option>
+                    </options>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>unlock-files</id>
+                        <phase>pre-clean</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <echo message="Stripping Read-Only flags for Windows..."/>
+                                <exec executable="attrib">
+                                    <arg value="-r"/>
+                                    <arg value="/s"/>
+                                    <arg value="/d"/>
+                                    <arg value="${path.build}\*"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>assert-directories</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <mkdir dir="${path.jar}"/>
+                                <mkdir dir="${path.jpackage}"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -57,27 +113,6 @@
     <profiles>
         <profile>
             <id>build-jar</id>
-            <dependencies>
-                <!-- EXTRA NATIVES FOR UNIVERSAL RELEASE ONLY -->
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-graphics</artifactId>
-                    <version>${javafx.version}</version>
-                    <classifier>linux</classifier>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-graphics</artifactId>
-                    <version>${javafx.version}</version>
-                    <classifier>mac</classifier>
-                </dependency>
-                <dependency>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-graphics</artifactId>
-                    <version>${javafx.version}</version>
-                    <classifier>win</classifier>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
                     <plugin>
@@ -119,9 +154,31 @@
         </profile>
 
         <profile>
-            <id>build-jpackage</id>
+            <id>build-app</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.openjfx</groupId>
+                        <artifactId>javafx-maven-plugin</artifactId>
+                        <version>0.0.8</version>
+                        <executions>
+                            <execution>
+                                <id>create-runtime</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jlink</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>${module.name}/${main.class}</mainClass>
+                                    <jlinkImageName>custom-jre</jlinkImageName>
+                                    <stripDebug>true</stripDebug>
+                                    <noManPages>true</noManPages>
+                                    <noHeaderFiles>true</noHeaderFiles>
+                                    <compress>2</compress>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
@@ -137,16 +194,22 @@
                                     <arguments>
                                         <argument>--type</argument>
                                         <argument>app-image</argument>
-                                        <argument>--dest</argument>
-                                        <argument>${path.jpackage}</argument>
                                         <argument>--name</argument>
                                         <argument>ClockTimer</argument>
+                                        <argument>--dest</argument>
+                                        <argument>${path.jpackage}</argument>
+                                        <argument>--runtime-image</argument>
+                                        <argument>${path.jre.output}</argument>
                                         <argument>--input</argument>
                                         <argument>${path.jar}</argument>
                                         <argument>--main-jar</argument>
                                         <argument>ClockTimer.jar</argument>
                                         <argument>--main-class</argument>
                                         <argument>${main.class}</argument>
+
+                                        <!-- 2. ADDED: Native access flag for packaged EXE -->
+                                        <argument>--java-options</argument>
+                                        <argument>--enable-native-access=${module.name},javafx.graphics</argument>
                                     </arguments>
                                 </configuration>
                             </execution>

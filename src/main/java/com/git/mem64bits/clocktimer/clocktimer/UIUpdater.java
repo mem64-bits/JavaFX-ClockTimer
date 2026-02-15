@@ -6,88 +6,143 @@ import javafx.scene.control.Label;
 
 
 public class UIUpdater{
-
-    enum AppState{
+    enum TimerState{
         RUNNING,
         PAUSED,
         NEUTRAL
     }
 
-    private AppState currentState = AppState.NEUTRAL;
+    /*enum TimerMode{
+        STOPWATCH,
+        TIMER
+    }
+*/
+    private TimerState currentState = TimerState.NEUTRAL;
+    // private TimerMode timerMode = TimerMode.STOPWATCH;
+    private Timer timerEngine;
+    private AnimationTimer timeUpdater;
 
+    public Label clockLabel;
+    //public ClockFace clockFace;
 
-    public Label timerLabel;
+    //public Button timerModeButton;
     public Button startButton;
     public Button pauseButton;
     public Button resetButton;
 
-    private final Stopwatch stopwatch = new Stopwatch(0, 0, 0, 0);
     private long lastTime = 0;
     private double accumulator = 0;
 
-    private final AnimationTimer timeUpdater = new AnimationTimer(){
-        @Override
-        public void handle(long now){
-            if(lastTime == 0){
-                lastTime = now;
-                return;
-            }
-
-            double deltaTime = (now - lastTime) / 1_000_000_000.0;
-            lastTime = now;
-
-            double timeMultiplier = 1.0;
-            accumulator += (deltaTime * timeMultiplier);
-
-            while(accumulator >= 0.001){
-                stopwatch.updateStopwatch();
-                accumulator -= 0.001;
-            }
-            timerLabel.setText(stopwatch.getDisplayedTime().toString());
+    private void updateTimerEngine(long nanoTime){
+        if(!timerEngine.isActive()){
+            return;
         }
-    };
+
+        if(lastTime == 0){
+            lastTime = nanoTime;
+            return;
+        }
+
+        double deltaTime = (nanoTime - lastTime) / 1_000_000_000.0;
+        lastTime = nanoTime;
+
+        double timeMultiplier = 1.0;
+        accumulator += (deltaTime * timeMultiplier);
+
+        while(accumulator >= 0.001){
+            timerEngine.update();
+            accumulator -= 0.001;
+        }
+        clockLabel.setText(timerEngine.getDisplayedTime().toString());
+    }
+
+    @FXML
+    void initialize(){
+        this.timerEngine = new Stopwatch(0, 0, 0, 0);
+        this.timeUpdater = new AnimationTimer(){
+            @Override
+            public void handle(long now){
+                if(!timerEngine.isActive()){
+                    return;
+                }
+                updateTimerEngine(now);
+            }
+        };
+    }
 
     @FXML
     protected void onStartButtonClick(){
-        stopwatch.reset();
-        currentState = AppState.RUNNING;
+        timerEngine.start();
+        currentState = TimerState.RUNNING;
+
         lastTime = 0;
+        accumulator = 0.0;
+
         timeUpdater.start();
-        stopwatch.setActive(true);
+        timerEngine.setActive(true);
         updateButtonVisibility();
     }
 
     @FXML
     protected void onPauseButtonClick(){
-        if(currentState == AppState.RUNNING){
-            currentState = AppState.PAUSED;
+        if(currentState == TimerState.RUNNING){
+            currentState = TimerState.PAUSED;
+            timerEngine.stop();
             timeUpdater.stop();
-            stopwatch.setActive(false);
             pauseButton.setText("Pause");
-        } else if(currentState == AppState.PAUSED){
-            currentState = AppState.RUNNING;
-            lastTime = 0;
-            timeUpdater.start();
-            stopwatch.setActive(true);
-        }
 
+            lastTime = 0;
+            accumulator = 0.0;
+
+
+        } else if(currentState == TimerState.PAUSED){
+            currentState = TimerState.RUNNING;
+            timerEngine.start();
+            timeUpdater.start();
+            pauseButton.setText("Resume");
+            accumulator = 0.0;
+            lastTime = 0;
+        }
         updateButtonVisibility();
     }
 
     @FXML
     private void onResetButtonClick(){
-        currentState = AppState.NEUTRAL;
-        timeUpdater.stop();
-        stopwatch.setActive(false);
-        lastTime = 0;
-
+        timerEngine.setActive(false);
         pauseButton.setText("Pause");
-        stopwatch.updateDisplayedTime(0, 0, 0, 0);
-        timerLabel.setText(stopwatch.getDisplayedTime().toString());
+        currentState = TimerState.NEUTRAL;
+
+        timeUpdater.stop();
+        lastTime = 0;
+        accumulator = 0.0;
+
+        timerEngine.reset();
+        clockLabel.setText(timerEngine.getDisplayedTime().toString());
         updateButtonVisibility();
     }
 
-    void updateButtonVisibility(){
+
+ /*   public void switchTimerMode(){
+        switch(timerMode){
+            case STOPWATCH -> {
+                timerMode = TimerMode.TIMER;
+                //timerModeButton.setText("Timer");
+            }
+            case TIMER -> {
+                timerMode = STOPWATCH;
+                //timerModeButton.setText("Stopwatch");
+            }
+        }
+    }*/
+
+
+  /*  @FXML
+    private void onModeButtonClick(){
+        //switchTimerMode();
+        changeTimerEngine(timerMode);
+    }*/
+
+    public void updateButtonVisibility(){
         switch(currentState){
 
             case NEUTRAL -> {
@@ -109,4 +164,18 @@ public class UIUpdater{
             }
         }
     }
+
+    /*public void changeTimerEngine(TimerMode mode){
+        switch(mode){
+            case STOPWATCH -> {
+                timerEngine = new Stopwatch(0, 0, 0, 0);
+            }
+            case TIMER -> {
+                timerEngine = new Countdown(0, 0, 0);
+            }
+
+        }
+    }*/
+
+
 }

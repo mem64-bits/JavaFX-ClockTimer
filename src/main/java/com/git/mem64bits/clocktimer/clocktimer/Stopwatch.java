@@ -1,45 +1,46 @@
 package com.git.mem64bits.clocktimer.clocktimer;
 
 public class Stopwatch extends Timer{
-    private long startNano;
-
+ 
     public Stopwatch(long hours, long mins, long secs, long millis){
         super(hours, mins, secs, millis);
-        resetStartNano();
+        this.totalElapsedMillis = 0;
     }
 
     public Stopwatch(){
         super(0, 0, 0, 0);
-        resetStartNano();
+        this.totalElapsedMillis = 0;
     }
 
-    public void resetStartNano(){
-        startNano = System.nanoTime();
+    public Stopwatch(TimeFormat time){
+        super(time);
+        this.totalElapsedMillis = 0;
     }
 
-    public void updateStopwatch(){
-        if(!active)
+    @Override
+    public void update(){
+        if(!isActive())
             return;
+        totalElapsedMillis++;
+        calculateTimeUnits(totalElapsedMillis);
+    }
 
-        long elapsedNano = System.nanoTime() - startNano;
-        totalMillis = elapsedNano / 1_000_000;
-        totalSeconds = totalMillis / 1_000;
-        totalMinutes = totalSeconds / 60;
-        totalHours = totalMinutes / 60;
 
-        long displayedMillis = totalMillis % 1000;
-        long displayedSeconds = totalSeconds % 60;
-        long displayedMinutes = totalMinutes % 60;
-
-        updateDisplayedTime(totalHours, displayedMinutes, displayedSeconds,
-                displayedMillis);
+    @Override
+    public void reset(){
+        this.totalElapsedMillis = 0;
+        updateDisplayedTime(new TimeFormat(0, 0, 0, 0));
 
     }
 
     @Override
-    public void reset(){
-        resetStartNano();
-        updateDisplayedTime(0, 0, 0, 0);
+    public void start(){
+        setActive(true);
+    }
+
+    @Override
+    public void stop(){
+        setActive(false);
     }
 
 }

@@ -18,7 +18,7 @@
         <StackPane HBox.hgrow="ALWAYS">
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="#43474c" height="75.0" stroke="#a8a6a6" strokeType="INSIDE"
                        width="360.0"/>
-            <Label fx:id="timerLabel" alignment="CENTER"
+            <Label fx:id="clockLabel" alignment="CENTER"
                    style="-fx-font-family: 'Jetbrains Mono SemiBold'; -fx-font-size: 45; -fx-font-weight: bold;"
                    text="00:00:00:000" textAlignment="CENTER" textFill="#fbfbfb">
                 <font>
@@ -32,20 +32,20 @@
         <Button id="startButton" fx:id="startButton" alignment="CENTER" mnemonicParsing="false"
                 onAction="#onStartButtonClick" prefHeight="35.0" prefWidth="100.0" text="Start">
             <HBox.margin>
-                <Insets right="20.0"/>
+                <Insets left="10.0" right="20.0"/>
             </HBox.margin>
             <font>
-                <Font name="JetBrains Mono SemiBold" size="16.0"/>
+                <Font name="JetBrains Mono Medium" size="14.0"/>
             </font>
         </Button>
 
         <Button id="stopButton" fx:id="pauseButton" alignment="CENTER" mnemonicParsing="false"
                 onAction="#onPauseButtonClick" prefHeight="35.0" prefWidth="100.0" text="Stop">
             <HBox.margin>
-                <Insets left="5.0"/>
+                <Insets left="-10.0"/>
             </HBox.margin>
             <font>
-                <Font name="JetBrains Mono SemiBold" size="16.0"/>
+                <Font name="JetBrains Mono SemiBold" size="14.0"/>
             </font>
         </Button>
         <Button fx:id="resetButton" mnemonicParsing="false" onMouseClicked="#onResetButtonClick" prefHeight="35.0"
@@ -54,10 +54,10 @@
                 <Insets/>
             </opaqueInsets>
             <HBox.margin>
-                <Insets left="24.0"/>
+                <Insets left="10.0"/>
             </HBox.margin>
             <font>
-                <Font name="JetBrains Mono Medium" size="16.0"/>
+                <Font name="JetBrains Mono Medium" size="14.0"/>
             </font>
         </Button>
     </HBox>

@@ -4,14 +4,51 @@
   <groupId>com.git.mem64bits.clocktimer</groupId>
   <artifactId>ClockTimer</artifactId>
   <name>Clock Timer</name>
-  <version>0.5.0</version>
+  <version>0.5.4</version>
   <build>
-    <directory>${project.basedir}/build</directory>
+    <directory>${path.build}</directory>
     <finalName>ClockTimer</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>unlock-files</id>
+            <phase>pre-clean</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <echo />
+                <exec>
+                  <arg />
+                  <arg />
+                  <arg />
+                  <arg />
+                </exec>
+              </target>
+            </configuration>
+          </execution>
+          <execution>
+            <id>assert-directories</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <mkdir />
+                <mkdir />
+              </target>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -30,11 +67,11 @@
                   <goal>shade</goal>
                 </goals>
                 <configuration>
-                  <outputFile>C:\Users\toryo\IdeaProjects\Clock Timer/build/jar/ClockTimer.jar</outputFile>
+                  <outputFile>${path.jar}/ClockTimer.jar</outputFile>
                   <transformers>
                     <transformer />
                     <transformer>
-                      <mainClass>com.git.mem64bits.clocktimer.clocktimer.AppLauncher</mainClass>
+                      <mainClass>${main.class}</mainClass>
                     </transformer>
                   </transformers>
                   <filters>
@@ -53,34 +90,33 @@
           </plugin>
         </plugins>
       </build>
-      <dependencies>
-        <dependency>
-          <groupId>org.openjfx</groupId>
-          <artifactId>javafx-graphics</artifactId>
-          <version>21.0.6</version>
-          <classifier>linux</classifier>
-          <scope>compile</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.openjfx</groupId>
-          <artifactId>javafx-graphics</artifactId>
-          <version>21.0.6</version>
-          <classifier>mac</classifier>
-          <scope>compile</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.openjfx</groupId>
-          <artifactId>javafx-graphics</artifactId>
-          <version>21.0.6</version>
-          <classifier>win</classifier>
-          <scope>compile</scope>
-        </dependency>
-      </dependencies>
     </profile>
     <profile>
-      <id>build-jpackage</id>
+      <id>build-app</id>
       <build>
         <plugins>
+          <plugin>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-maven-plugin</artifactId>
+            <version>0.0.8</version>
+            <executions>
+              <execution>
+                <id>create-runtime</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jlink</goal>
+                </goals>
+                <configuration>
+                  <mainClass>${module.name}/${main.class}</mainClass>
+                  <jlinkImageName>custom-jre</jlinkImageName>
+                  <stripDebug>true</stripDebug>
+                  <noManPages>true</noManPages>
+                  <noHeaderFiles>true</noHeaderFiles>
+                  <compress>2</compress>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
@@ -96,10 +132,12 @@
                   <arguments>
                     <argument>--type</argument>
                     <argument>app-image</argument>
-                    <argument>--dest</argument>
-                    <argument>${path.jpackage}</argument>
                     <argument>--name</argument>
                     <argument>ClockTimer</argument>
+                    <argument>--dest</argument>
+                    <argument>${path.jpackage}</argument>
+                    <argument>--runtime-image</argument>
+                    <argument>${path.jre.output}</argument>
                     <argument>--input</argument>
                     <argument>${path.jar}</argument>
                     <argument>--main-jar</argument>
@@ -116,12 +154,15 @@
     </profile>
   </profiles>
   <properties>
-    <path.jar>${project.basedir}/build/jar</path.jar>
+    <path.jar>${path.build}/jar</path.jar>
     <maven.compiler.target>25</maven.compiler.target>
-    <path.jpackage>${project.basedir}/build/jpackage</path.jpackage>
+    <path.jpackage>${path.build}/jpackage</path.jpackage>
     <main.class>com.git.mem64bits.clocktimer.clocktimer.AppLauncher</main.class>
     <maven.compiler.source>25</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <javafx.version>21.0.6</javafx.version>
+    <path.jre.output>${path.build}/custom-jre</path.jre.output>
+    <module.name>com.git.mem64bits.clocktimer.clocktimer</module.name>
+    <path.build>${project.basedir}/build</path.build>
   </properties>
 </project>

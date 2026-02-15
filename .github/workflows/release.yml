@@ -55,6 +55,6 @@ jobs:
             ### Windows / Linux / MacOS (Universal JAR)
             Download **ClockTimer_${{ github.ref_name }}.jar**. 
             *Requires OpenJDK 25 installed on your system.*
-            Run with: `java -jar ClockTimer_${{ github.ref_name }}.jar`
+            Run with: `java -jar ./ClockTimer_${{ github.ref_name }}.jar`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
