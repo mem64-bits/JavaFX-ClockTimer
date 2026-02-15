@@ -26,7 +26,7 @@ jobs:
 
       - name: Build with Maven
         # This builds build/jar/ClockTimer.jar and build/jpackage/ClockTimer
-        run: .\mvnw.cmd clean install -P build-jar,build-jpackage
+        run: .\mvnw.cmd clean install -P build-jar,build-app
 
       - name: Prepare Release Assets
         # We rename the files on the disk here so they have the correct version numbers
