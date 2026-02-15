@@ -44,6 +44,8 @@ out/
 # ASSERTION: Do not ignore the directory structure (keep .gitkeep files)
 !build/jar/.gitkeep
 !build/jpackage/.gitkeep
+!build/jpackage/ClockTimer/.gitkeep
+!build/.gitkeep
 
 
 # IDE specific
